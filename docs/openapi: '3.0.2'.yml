@@ -1,0 +1,172 @@
+openapi: "3.0.2"
+info:
+  title: Personify APIs
+  version: "1.0"
+  description: Personify API Contracts
+  contact:
+    name: Personify API Support
+    url: https://api.personify.example.com
+    email: support@personify.example.com
+servers:
+  - url: https://{instanceType}:{exposePort}/{basePath}/{version}
+    description: Personify Server Location
+    variables:
+      instanceType:
+        enum:
+          - "localhost"
+          - "development"
+          - "testing"
+          - "staging"
+          - "production"
+        default: localhost
+      exposePort:
+        enum:
+          - "8080"
+          - "8000"
+        default: "8080"
+      basePath:
+        default: api
+      version:
+        enum:
+          - "v1"
+          - "v2"
+        default: v1
+security:
+  - clientToken: []
+  - userToken: []
+tags:
+  - name: Administration
+    description: Everything related to administration
+  - name: Authentication
+    description: Everything related to authentication
+  - name: Contact
+    description: Everything related to User Contacts
+paths:
+  /register:
+    post:
+      tags:
+        - Authentication
+      summary: Register User
+      description: This can only be done by authenticated client
+      operationId: registerUser
+      requestBody:
+        $ref: "#/components/requestBodies/User"
+      responses:
+        "200":
+          description: OK
+  /login:
+    get:
+      tags:
+        - Authentication
+      responses:
+        "200":
+          description: OK
+  /logout:
+    get:
+      tags:
+        - Authentication
+      responses:
+        "200":
+          description: OK
+  /user:
+    get:
+      tags:
+        - Administration
+      responses:
+        "200":
+          description: OK
+  /user/{userId}:
+    parameters:
+      - $ref: "#/components/parameters/userIdParam"
+    get:
+      tags:
+        - Administration
+      responses:
+        "200":
+          description: OK
+    delete:
+      tags:
+        - Administration
+      responses:
+        "200":
+          description: OK
+  /contact:
+    get:
+      tags:
+        - Contact
+      responses:
+        "200":
+          description: OK
+  /contact/{contactId}:
+    parameters:
+      - $ref: "#/components/parameters/contactIdParam"
+    get:
+      tags:
+        - Contact
+      responses:
+        "200":
+          description: OK
+    delete:
+      tags:
+        - Contact
+      responses:
+        "200":
+          description: OK
+components:
+  schemas:
+    User:
+      type: object
+  requestBodies:
+    User:
+      description: User object that needs to be added
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/User"
+  parameters:
+    contactIdParam:
+      name: contactId
+      in: path
+      description: Contact ID
+      required: true
+      schema:
+        type: string
+    userIdParam:
+      name: userId
+      in: path
+      description: User ID
+      required: true
+      schema:
+        type: string
+    skipToParam:
+      name: skipTo
+      in: query
+      description: number of records to skip
+      required: false
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+        default: 0
+    limitByParam:
+      name: limitBy
+      in: query
+      description: maximum records to limit
+      required: false
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        default: 0
+  securitySchemes:
+    clientToken:
+      type: apiKey
+      in: header
+      name: client-token
+      description: Client API Token
+    userToken:
+      type: apiKey
+      in: header
+      name: user-token
+      description: User API Key
